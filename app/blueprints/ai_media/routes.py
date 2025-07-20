@@ -1,28 +1,33 @@
 from flask import Blueprint, request, jsonify
-from .service import AIMediaService
+from .service import upscale_image, enhance_image
 
-ai_media_bp = Blueprint('ai_media', __name__)
-service = AIMediaService()
+ai_media_bp = Blueprint("ai_media", __name__, url_prefix="/api/ai-media")
 
-@ai_media_bp.route('/ai/media/generate-image', methods=['POST'])
-def generate_image():
+@ai_media_bp.route("/upscale", methods=["POST"])
+def upscale():
     data = request.get_json()
-    prompt = data.get('prompt')
-    if not prompt:
-        return jsonify({'error': 'Prompt is required'}), 400
-    try:
-        image_path = service.generate_image(prompt)
-        return jsonify({'image_url': image_path}), 200
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+    image_url = data.get("image_url")
 
-@ai_media_bp.route('/ai/media/generate-variation', methods=['POST'])
-def generate_variation():
-    if 'image' not in request.files:
-        return jsonify({'error': 'Image file is required'}), 400
-    image = request.files['image']
+    if not image_url:
+        return jsonify({"error": "Missing image_url"}), 400
+
     try:
-        image_path = service.generate_variation(image.stream)
-        return jsonify({'image_url': image_path}), 200
+        result_url = upscale_image(image_url)
+        return jsonify({"enhanced_url": result_url}), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({"error": str(e)}), 500
+
+
+@ai_media_bp.route("/enhance", methods=["POST"])
+def enhance():
+    data = request.get_json()
+    image_url = data.get("image_url")
+
+    if not image_url:
+        return jsonify({"error": "Missing image_url"}), 400
+
+    try:
+        result_url = enhance_image(image_url)
+        return jsonify({"enhanced_url": result_url}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500

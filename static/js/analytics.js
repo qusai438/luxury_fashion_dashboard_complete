@@ -1,42 +1,39 @@
-document.addEventListener("DOMContentLoaded", async function () {
-    const metricsContainer = document.getElementById("metrics");
-    const suggestionsList = document.getElementById("suggestions");
+document.addEventListener("DOMContentLoaded", () => {
+  const overviewList = document.getElementById("overviewList");
+  const socialList = document.getElementById("socialList");
+  const suggestionList = document.getElementById("suggestionList");
 
-    try {
-        const response = await fetch("/api/analytics/analytics");
-        const data = await response.json();
+  fetch("/api/analytics/overview")
+    .then(res => res.json())
+    .then(data => {
+      Object.entries(data).forEach(([key, value]) => {
+        const li = document.createElement("li");
+        li.className = "list-group-item";
+        li.textContent = `${key.replace(/_/g, ' ')}: ${value}`;
+        overviewList.appendChild(li);
+      });
+    })
+    .catch(err => console.error("Overview error:", err));
 
-        const metrics = data.metrics || {};
-        const suggestions = data.suggestions || [];
+  fetch("/api/analytics/social")
+    .then(res => res.json())
+    .then(data => {
+      const metrics = data.metrics || {};
+      const suggestions = data.suggestions || [];
 
-        // عرض المقاييس
-        Object.entries(metrics).forEach(([key, value]) => {
-            const col = document.createElement("div");
-            col.className = "col-md-3";
+      Object.entries(metrics).forEach(([key, value]) => {
+        const li = document.createElement("li");
+        li.className = "list-group-item";
+        li.textContent = `${key}: ${value}`;
+        socialList.appendChild(li);
+      });
 
-            const card = document.createElement("div");
-            card.className = "card text-center shadow-sm";
-
-            card.innerHTML = `
-                <div class="card-body">
-                    <h5 class="card-title text-capitalize">${key}</h5>
-                    <p class="card-text display-6 fw-bold">${value}</p>
-                </div>
-            `;
-
-            col.appendChild(card);
-            metricsContainer.appendChild(col);
-        });
-
-        // عرض الاقتراحات
-        suggestions.forEach(text => {
-            const li = document.createElement("li");
-            li.className = "list-group-item";
-            li.textContent = text;
-            suggestionsList.appendChild(li);
-        });
-    } catch (err) {
-        console.error("Failed to load analytics data:", err);
-        metricsContainer.innerHTML = "<p class='text-danger'>Unable to load analytics data.</p>";
-    }
+      suggestions.forEach(s => {
+        const li = document.createElement("li");
+        li.className = "list-group-item";
+        li.textContent = s;
+        suggestionList.appendChild(li);
+      });
+    })
+    .catch(err => console.error("Social error:", err));
 });

@@ -7,15 +7,9 @@
 </head>
 <body class="bg-light">
   <div class="container py-5">
-    <h2 class="mb-4">🛍️ Recommended Products</h2>
+    <h2 class="mb-4">🛍️ Personalized Product Recommendations</h2>
 
-    <form id="recForm" class="bg-white p-4 rounded shadow-sm mb-4">
-      <label for="productId" class="form-label">Enter Product ID</label>
-      <input type="text" id="productId" class="form-control mb-3" required>
-      <button type="submit" class="btn btn-primary w-100">Get Recommendations</button>
-    </form>
-
-    <div id="recommendations" class="row g-4"></div>
+    <div id="recommendationsContainer" class="row gy-4"></div>
   </div>
 
   <script src="/static/js/recommendations.js"></script>

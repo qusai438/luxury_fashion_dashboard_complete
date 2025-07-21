@@ -1,5 +1,3 @@
-# app/blueprints_loader.py
-
 from app.blueprints.inventory.routes import inventory_bp
 from app.blueprints.email.routes import email_bp
 from app.blueprints.ai_content.routes import ai_content_bp
@@ -15,9 +13,9 @@ from app.blueprints.dropship.routes import dropship_bp
 from app.blueprints.reviews.routes import reviews_bp
 from app.blueprints.returns.routes import returns_bp
 from app.blueprints.ads.routes import ads_bp
-from app.blueprints.admin.settings import settings_bp
 from app.blueprints.admin.routes import admin_bp
 from app.blueprints.smart_editor.routes import smart_editor_bp
+from app.blueprints.admin.settings import settings_bp  # ✅ تمت إضافته هنا
 
 def register_blueprints(app):
     app.register_blueprint(inventory_bp)
@@ -35,6 +33,6 @@ def register_blueprints(app):
     app.register_blueprint(reviews_bp)
     app.register_blueprint(returns_bp)
     app.register_blueprint(ads_bp)
-    app.register_blueprint(settings_bp)  # لوحة التحكم لإدارة مفاتيح API
     app.register_blueprint(admin_bp)
     app.register_blueprint(smart_editor_bp)
+    app.register_blueprint(settings_bp)  # ✅ تأكد من تفعيل صفحة المفاتيح

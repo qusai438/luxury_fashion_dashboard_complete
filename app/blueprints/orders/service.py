@@ -1,33 +1,45 @@
-import shopify
-from flask import current_app
+import requests
+import os
 
 class OrdersService:
+    def __init__(self):
+        self.shop_url = os.getenv("SHOPIFY_STORE_URL")
+        self.api_key = os.getenv("SHOPIFY_API_KEY")
+        self.api_password = os.getenv("SHOPIFY_API_PASSWORD")
+
+        if not all([self.shop_url, self.api_key, self.api_password]):
+            raise EnvironmentError("Missing Shopify API credentials.")
+
+        self.session = requests.Session()
+        self.session.auth = (self.api_key, self.api_password)
+        self.base_url = f"https://{self.shop_url}/admin/api/2023-07"
+
     def get_unfulfilled_orders(self):
-        orders = shopify.Order.find(fulfillment_status='unfulfilled', financial_status='paid')
-        result = []
-        for order in orders:
-            result.append({
-                'id': order.id,
-                'name': order.name,
-                'email': order.email,
-                'line_items': [{'title': item.title, 'quantity': item.quantity} for item in order.line_items]
-            })
-        return result
+        url = f"{self.base_url}/orders.json?status=open&financial_status=paid&fulfillment_status=unfulfilled"
+        response = self.session.get(url)
+        response.raise_for_status()
+        data = response.json()
+        return data.get("orders", [])
 
     def fulfill_order(self, order_id):
-        order = shopify.Order.find(order_id)
-        if not order:
-            raise Exception("Order not found")
+        # Create a fulfillment for a given order
+        url = f"{self.base_url}/orders/{order_id}/fulfillments.json"
+        payload = {
+            "fulfillment": {
+                "location_id": self.get_primary_location_id(),
+                "tracking_number": None,
+                "notify_customer": True
+            }
+        }
+        response = self.session.post(url, json=payload)
+        response.raise_for_status()
+        return response.json()
 
-        fulfillment = shopify.Fulfillment({
-            "order_id": order.id,
-            "location_id": current_app.config['SHOPIFY_LOCATION_ID'],
-            "tracking_number": None,
-            "notify_customer": True,
-            "line_items": order.line_items
-        })
-
-        if fulfillment.save():
-            return {'status': 'fulfilled', 'order_id': order.id}
-        else:
-            raise Exception("Failed to fulfill order")
+    def get_primary_location_id(self):
+        url = f"{self.base_url}/locations.json"
+        response = self.session.get(url)
+        response.raise_for_status()
+        locations = response.json().get("locations", [])
+        if not locations:
+            raise ValueError("No locations found in Shopify store.")
+        return locations[0]["id"]

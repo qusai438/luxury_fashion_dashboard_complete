@@ -1,20 +1,21 @@
-import datetime
-from uuid import uuid4
-
-# قاعدة بيانات مؤقتة في الذاكرة (placeholder)
-RETURNS_DB = []
+import shopify
+from flask import current_app
 
 class ReturnsService:
-    def request_return(self, order_id: str, reason: str) -> dict:
-        return_request = {
-            "id": str(uuid4()),
-            "order_id": order_id,
-            "reason": reason,
-            "status": "pending",
-            "requested_at": datetime.datetime.utcnow().isoformat()
-        }
-        RETURNS_DB.append(return_request)
-        return return_request
+    def handle_return(self, order_id, reason):
+        order = shopify.Order.find(order_id)
 
-    def get_all_returns(self) -> list:
-        return RETURNS_DB
+        if not order:
+            raise Exception("Order not found")
+
+        # Log return reason internally (could be saved to DB or sent to admin)
+        return_note = f"Return requested: {reason}"
+
+        # Optionally tag the order in Shopify
+        order.tags += ",ReturnRequested"
+        order.note = return_note
+
+        if order.save():
+            return {'success': True, 'message': 'Return request processed'}
+        else:
+            raise Exception("Failed to update order with return info")

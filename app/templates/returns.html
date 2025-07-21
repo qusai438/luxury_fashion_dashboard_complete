@@ -3,31 +3,52 @@
 <head>
   <meta charset="UTF-8">
   <title>Request a Return</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 </head>
 <body class="bg-light">
   <div class="container py-5">
-    <h2 class="mb-4">🔄 Return Request Form</h2>
-
-    <form id="returnForm" class="bg-white p-4 rounded shadow-sm">
+    <h2 class="mb-4">Return Request Form</h2>
+    <form id="returnForm" class="card p-4 shadow-sm">
       <div class="mb-3">
         <label for="orderId" class="form-label">Order ID</label>
-        <input type="text" id="orderId" class="form-control" required>
+        <input type="text" class="form-control" id="orderId" required>
       </div>
-
       <div class="mb-3">
         <label for="reason" class="form-label">Reason for Return</label>
-        <textarea id="reason" class="form-control" rows="3" required></textarea>
+        <textarea class="form-control" id="reason" rows="3" required></textarea>
       </div>
-
-      <button type="submit" class="btn btn-danger w-100">Submit Return Request</button>
+      <button type="submit" class="btn btn-danger w-100">Submit Return</button>
     </form>
 
-    <div id="confirmation" class="alert alert-success mt-4 d-none" role="alert">
-      ✅ Return request submitted successfully.
-    </div>
+    <div id="responseBox" class="mt-4 alert d-none"></div>
   </div>
 
-  <script src="/static/js/returns.js"></script>
+  <script>
+    document.getElementById("returnForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const orderId = document.getElementById("orderId").value;
+      const reason = document.getElementById("reason").value;
+
+      const response = await fetch("/returns/request", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ order_id: orderId, reason: reason })
+      });
+
+      const result = await response.json();
+      const box = document.getElementById("responseBox");
+      box.classList.remove("d-none", "alert-success", "alert-danger");
+
+      if (response.ok) {
+        box.classList.add("alert-success");
+        box.innerText = result.message || "Return request submitted successfully.";
+      } else {
+        box.classList.add("alert-danger");
+        box.innerText = result.error || "An error occurred.";
+      }
+    });
+  </script>
 </body>
 </html>

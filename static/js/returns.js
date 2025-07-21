@@ -1,38 +1,44 @@
-document.addEventListener("DOMContentLoaded", function () {
-    const form = document.getElementById("returnForm");
-    const confirmation = document.getElementById("confirmation");
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("returnForm");
+  const responseBox = document.getElementById("responseBox");
 
-    form.addEventListener("submit", async function (e) {
-        e.preventDefault();
+  if (!form) return;
 
-        const orderId = document.getElementById("orderId").value.trim();
-        const reason = document.getElementById("reason").value.trim();
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-        if (!orderId || !reason) {
-            alert("Please fill out both fields.");
-            return;
-        }
+    const orderId = document.getElementById("orderId").value.trim();
+    const reason = document.getElementById("reason").value.trim();
 
-        const payload = { order_id: orderId, reason };
+    if (!orderId || !reason) {
+      showResponse("Please fill in all fields.", false);
+      return;
+    }
 
-        try {
-            const response = await fetch("/api/returns/request", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload)
-            });
+    try {
+      const response = await fetch("/returns/request", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ order_id: orderId, reason: reason })
+      });
 
-            const data = await response.json();
+      const result = await response.json();
+      if (response.ok) {
+        showResponse(result.message || "Return request submitted successfully.", true);
+        form.reset();
+      } else {
+        showResponse(result.error || "An error occurred while processing your request.", false);
+      }
+    } catch (err) {
+      showResponse("Unexpected error occurred.", false);
+    }
+  });
 
-            if (response.ok && data.status !== "error") {
-                confirmation.classList.remove("d-none");
-                form.reset();
-            } else {
-                alert(data.error || "Failed to submit return request.");
-            }
-        } catch (err) {
-            console.error("Error submitting return request:", err);
-            alert("An error occurred.");
-        }
-    });
+  function showResponse(message, success) {
+    responseBox.classList.remove("d-none", "alert-success", "alert-danger");
+    responseBox.classList.add(success ? "alert-success" : "alert-danger");
+    responseBox.textContent = message;
+  }
 });

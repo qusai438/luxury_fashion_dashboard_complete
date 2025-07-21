@@ -1,0 +1,30 @@
+{% extends "dashboard.html" %}
+{% block content %}
+<div class="container mt-5">
+  <h2 class="mb-4">🔐 Manage API Keys</h2>
+
+  <form method="POST" class="border p-4 rounded bg-light mb-4">
+    <div class="form-group mb-3">
+      <label for="service_name">Service Name</label>
+      <input type="text" name="service_name" class="form-control" required placeholder="e.g. openai, shopify">
+    </div>
+    <div class="form-group mb-3">
+      <label for="key_value">API Key</label>
+      <input type="password" name="key_value" class="form-control" required placeholder="Enter or update API key">
+    </div>
+    <button type="submit" class="btn btn-primary">💾 Save Key</button>
+  </form>
+
+  <h5 class="mt-4">📋 Stored Keys</h5>
+  <ul class="list-group">
+    {% for key in keys %}
+    <li class="list-group-item d-flex justify-content-between align-items-center">
+      <strong>{{ key.service_name }}</strong>
+      <span class="text-muted">●●●●●●●●</span>
+    </li>
+    {% else %}
+    <li class="list-group-item text-muted">No keys stored yet.</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endblock %}

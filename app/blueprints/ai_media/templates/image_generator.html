@@ -1,0 +1,28 @@
+{% extends 'dashboard.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>AI Image Generator</h2>
+    <form method="POST" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+        <div class="form-group">
+            {{ form.prompt.label(class="form-label") }}
+            {{ form.prompt(class="form-control") }}
+        </div>
+        <div class="form-group mt-3">
+            {{ form.image.label(class="form-label") }}
+            {{ form.image(class="form-control") }}
+        </div>
+        <div class="mt-4">
+            {{ form.submit(class="btn btn-primary") }}
+        </div>
+    </form>
+
+    {% if generated_image_url %}
+    <div class="mt-5">
+        <h5>Generated Image:</h5>
+        <img src="{{ generated_image_url }}" class="img-fluid border" style="max-width: 512px;">
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

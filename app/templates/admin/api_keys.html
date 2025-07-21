@@ -1,0 +1,32 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">🔐 Manage API Keys</h2>
+    <form method="POST" action="{{ url_for('settings.manage_api_keys') }}">
+        {{ form.hidden_tag() }}
+
+        <div class="mb-3">
+            <label for="openai" class="form-label">OpenAI API Key</label>
+            {{ form.openai_key(class="form-control", id="openai", placeholder="sk-...") }}
+        </div>
+
+        <div class="mb-3">
+            <label for="shopify" class="form-label">Shopify API Key</label>
+            {{ form.shopify_key(class="form-control", id="shopify", placeholder="shp-...") }}
+        </div>
+
+        <div class="mb-3">
+            <label for="meta" class="form-label">Meta Ads Access Token</label>
+            {{ form.meta_key(class="form-control", id="meta", placeholder="EAAG...") }}
+        </div>
+
+        <div class="mb-3">
+            <label for="smtp" class="form-label">SMTP Email Password</label>
+            {{ form.smtp_key(class="form-control", id="smtp", placeholder="App Password...") }}
+        </div>
+
+        <button type="submit" class="btn btn-primary">💾 Save Keys</button>
+    </form>
+</div>
+{% endblock %}

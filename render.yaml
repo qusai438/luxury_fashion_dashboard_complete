@@ -1,12 +1,23 @@
-# ✅ ملف render.yaml محدث بالكامل لإصلاح مشكلة build wheel
-
 services:
   - type: web
     name: luxury-fashion-dashboard
     env: python
-    plan: free
-    buildCommand: pip install --only-binary=:all: -r requirements.txt
-    startCommand: gunicorn app:app
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn wsgi:app
     envVars:
-      - key: FLASK_ENV
+      - key: PYTHON_VERSION
+        value: 3.11.8
+      - key: APP_ENV
         value: production
+      - key: APP_SECRET_KEY
+        value: your-secret-key-here
+      - key: OPENAI_API_KEY
+        value: dummy
+      - key: SHOPIFY_API_KEY
+        value: dummy
+      - key: SHOPIFY_API_SECRET
+        value: dummy
+      - key: SMTP_USERNAME
+        value: dummy
+      - key: SMTP_PASSWORD
+        value: dummy

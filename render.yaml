@@ -1,10 +1,12 @@
+# ✅ ملف render.yaml محدث بالكامل لإصلاح مشكلة build wheel
+
 services:
   - type: web
     name: luxury-fashion-dashboard
     env: python
     plan: free
-    buildCommand: ""
-    startCommand: gunicorn run:app
+    buildCommand: pip install --only-binary=:all: -r requirements.txt
+    startCommand: gunicorn app:app
     envVars:
       - key: FLASK_ENV
         value: production

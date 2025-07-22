@@ -1,34 +1,22 @@
-import datetime
 import json
 import os
 
-LOG_FILE = "user_behavior.log"
-
-def track_event(user_id: str, event_type: str, metadata: dict):
-    """
-    Logs a user event with metadata to a local log file.
-    """
-    event = {
-        "timestamp": datetime.datetime.utcnow().isoformat(),
-        "user_id": user_id,
-        "event_type": event_type,
-        "metadata": metadata
-    }
-
-    log_path = os.path.join("logs", LOG_FILE)
-    os.makedirs(os.path.dirname(log_path), exist_ok=True)
-
-    with open(log_path, "a", encoding="utf-8") as f:
-        f.write(json.dumps(event) + "\n")
-
+EVENTS_FILE = os.path.join(os.path.dirname(__file__), "user_events.json")
 
 def load_events():
-    """
-    Loads all tracked events from the log file.
-    """
-    log_path = os.path.join("logs", LOG_FILE)
-    if not os.path.exists(log_path):
+    if not os.path.exists(EVENTS_FILE):
         return []
 
-    with open(log_path, "r", encoding="utf-8") as f:
-        return [json.loads(line.strip()) for line in f.readlines()]
+    try:
+        with open(EVENTS_FILE, "r") as file:
+            events = json.load(file)
+        return events
+    except Exception:
+        return []
+
+def save_event(event: dict):
+    events = load_events()
+    events.append(event)
+
+    with open(EVENTS_FILE, "w") as file:
+        json.dump(events, file, indent=4)

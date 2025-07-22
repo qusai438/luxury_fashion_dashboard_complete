@@ -1,14 +1,28 @@
-from app.utils.openai_tools import gpt4_vision_generate_caption, gpt4_vision_generate_ad
-from app.utils.helpers import validate_image_url
+import os
+import base64
+from io import BytesIO
+from PIL import Image
+from werkzeug.utils import secure_filename
 
+TEMP_DIR = "temp"
 
-def generate_instagram_caption_from_image(image_url: str) -> str:
-    if not validate_image_url(image_url):
-        raise ValueError("Invalid image URL provided.")
-    return gpt4_vision_generate_caption(image_url)
+def ensure_temp_dir():
+    os.makedirs(TEMP_DIR, exist_ok=True)
 
+def save_base64_image(data_url, filename=None):
+    ensure_temp_dir()
+    header, encoded = data_url.split(",", 1)
+    image_data = base64.b64decode(encoded)
+    image = Image.open(BytesIO(image_data)).convert("RGB")
 
-def generate_ad_copy_from_image(image_url: str) -> str:
-    if not validate_image_url(image_url):
-        raise ValueError("Invalid image URL provided.")
-    return gpt4_vision_generate_ad(image_url)
+    filename = secure_filename(filename or "upload.jpg")
+    path = os.path.join(TEMP_DIR, filename)
+    image.save(path, format="JPEG", quality=85)
+
+    return path
+
+def resize_image(path, max_size=(1080, 1080)):
+    image = Image.open(path)
+    image.thumbnail(max_size)
+    image.save(path, format="JPEG", quality=90)
+    return path

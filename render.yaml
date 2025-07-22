@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: luxury-fashion-dashboard
+    env: python
+    buildCommand: ""
+    startCommand: gunicorn wsgi:app
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: APP_SECRET_KEY
+        value: your_secret_key_here
+      - key: OPENAI_API_KEY
+        value: ""
+      - key: SHOPIFY_API_KEY
+        value: ""
+      - key: SHOPIFY_API_SECRET
+        value: ""
+      - key: REDIS_URL
+        value: redis://default:password@redis-XXXXX.cXX.europe-west1-1.gcp.cloud.redislabs.com:XXXX
+

@@ -1,27 +1,20 @@
-from app.extensions import openai_client
+import requests
+from app.utils.openai_tools import generate_caption_from_image, generate_ad_copy_from_image
+from app.utils.shopify import get_product_image_url
 
-class AdGeneratorService:
-    def __init__(self):
-        self.model = "gpt-4"
+class AdsGeneratorService:
+    def generate_from_product(self, product_id):
+        # Step 1: Get product image from Shopify
+        image_url = get_product_image_url(product_id)
+        if not image_url:
+            raise Exception("No image found for this product.")
 
-    def generate_ad(self, product: dict) -> str:
-        title = product.get("title", "Luxury Fashion Item")
-        description = product.get("description", "")
-        audience = product.get("audience", "fashion-conscious women")
+        # Step 2: Generate caption and ad content from image
+        caption = generate_caption_from_image(image_url)
+        ad_copy = generate_ad_copy_from_image(image_url)
 
-        prompt = (
-            f"Write a high-converting, luxury-style ad copy for a women's fashion product.\n"
-            f"Product Title: {title}\n"
-            f"Description: {description}\n"
-            f"Target Audience: {audience}\n\n"
-            f"The ad should sound elegant, persuasive, and suitable for Facebook and Instagram."
-        )
-
-        response = openai_client.chat.completions.create(
-            model=self.model,
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.7,
-            max_tokens=300
-        )
-
-        return response.choices[0].message.content.strip()
+        return {
+            "image_url": image_url,
+            "caption": caption,
+            "ad_copy": ad_copy
+        }

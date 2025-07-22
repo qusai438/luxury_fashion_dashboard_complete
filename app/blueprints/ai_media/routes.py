@@ -1,34 +1,26 @@
 from flask import Blueprint, request, jsonify
-from .utils import generate_instagram_caption_from_image, generate_ad_copy_from_image
+from .utils import save_base64_image, resize_image
+from .service import AIImageContentGenerator
+from .schema import ImageGenerationRequestSchema
 
-ai_media_bp = Blueprint('ai_media', __name__)
+ai_media_bp = Blueprint("ai_media", __name__)
+generator = AIImageContentGenerator()
+schema = ImageGenerationRequestSchema()
 
-
-@ai_media_bp.route('/generate/caption', methods=['POST'])
-def generate_caption():
-    data = request.get_json() or {}
-    image_url = data.get("image_url")
-
-    if not image_url:
-        return jsonify({"error": "Image URL is required"}), 400
-
+@ai_media_bp.route("/ai-media/generate", methods=["POST"])
+def generate_ai_media():
     try:
-        caption = generate_instagram_caption_from_image(image_url)
-        return jsonify({"caption": caption}), 200
+        data = schema.load(request.get_json() or {})
+        image_path = save_base64_image(data["image_data"])
+        resized_path = resize_image(image_path)
+
+        content = generator.generate_ad_content_from_image(
+            image_path=resized_path,
+            style=data.get("style", "luxury"),
+            language=data.get("language", "en")
+        )
+
+        return jsonify({"ad_content": content}), 200
+
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-@ai_media_bp.route('/generate/ad-copy', methods=['POST'])
-def generate_ad_copy():
-    data = request.get_json() or {}
-    image_url = data.get("image_url")
-
-    if not image_url:
-        return jsonify({"error": "Image URL is required"}), 400
-
-    try:
-        ad_copy = generate_ad_copy_from_image(image_url)
-        return jsonify({"ad_copy": ad_copy}), 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": str(e)}), 400

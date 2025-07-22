@@ -12,7 +12,7 @@ requests==2.31.0
 openai==1.16.0
 shopifyapi==12.3.0
 Pillow==9.5.0
-moviepy==1.0.3
+moviepy==1.0.0
 GitPython==3.1.43
 whitenoise==6.6.0
 sentry-sdk==1.44.1

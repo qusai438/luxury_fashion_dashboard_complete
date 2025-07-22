@@ -1,18 +1,14 @@
-import io
-from PIL import Image
+from app.utils.openai_tools import gpt4_vision_generate_caption, gpt4_vision_generate_ad
+from app.utils.helpers import validate_image_url
 
-def resize_image(image_bytes, size=(512, 512)):
-    image = Image.open(io.BytesIO(image_bytes))
-    image = image.convert("RGB")
-    image = image.resize(size)
-    output = io.BytesIO()
-    image.save(output, format='JPEG')
-    output.seek(0)
-    return output.read()
 
-def is_supported_image(filename):
-    return filename.lower().endswith(('.png', '.jpg', '.jpeg', '.webp'))
+def generate_instagram_caption_from_image(image_url: str) -> str:
+    if not validate_image_url(image_url):
+        raise ValueError("Invalid image URL provided.")
+    return gpt4_vision_generate_caption(image_url)
 
-def get_image_dimensions(image_bytes):
-    image = Image.open(io.BytesIO(image_bytes))
-    return image.size
+
+def generate_ad_copy_from_image(image_url: str) -> str:
+    if not validate_image_url(image_url):
+        raise ValueError("Invalid image URL provided.")
+    return gpt4_vision_generate_ad(image_url)
